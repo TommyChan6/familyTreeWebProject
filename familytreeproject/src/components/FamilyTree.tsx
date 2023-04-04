@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
-
-interface Person {
-  name: string;
-  children?: Person[];
-}
+import { Person as PersonType } from '../types';
+import Person from './Person';
 
 const FamilyTree: React.FC = () => {
-  const [family, setFamily] = useState<Person[]>([    { name: 'Adam', children: [      { name: 'Bob', children: [        { name: 'Charlie' },        { name: 'David' }      ]},
-      { name: 'Eve', children: [
-        { name: 'Frank' },
-        { name: 'Grace' }
-      ]}
-    ]}
+  const [family, setFamily] = useState<PersonType[]>([
+    {
+      name: 'Adam',
+      children: [
+        {
+          name: 'Bob',
+          children: [
+            { name: 'Charlie' },
+            { name: 'David' }
+          ]
+        },
+        {
+          name: 'Eve',
+          children: [
+            { name: 'Frank' },
+            { name: 'Grace' }
+          ]
+        }
+      ]
+    }
   ]);
 
   const [newName, setNewName] = useState('');
@@ -21,15 +32,32 @@ const FamilyTree: React.FC = () => {
   };
 
   const handleButtonClick = () => {
-    const newPerson: Person = { name: newName };
+    const newPerson: PersonType = {
+      name: newName,
+      mother: null, // set to null by default
+      father: null, // set to null by default
+    };
+  
+    // find the parents of the new person
+    const parent1 = family[0];
+    const parent2 = family[0].children && family[0].children[0];
+  
+    // set the mother and father properties of the new person
+    if (parent1 && parent2) {
+      newPerson.mother = parent1;
+      newPerson.father = parent2;
+    }
+  
+    // add the new person to the family
     setFamily([...family, newPerson]);
     setNewName('');
   };
+  
 
-  const renderPerson = (person: Person): JSX.Element => {
+  const renderPerson = (person: PersonType): JSX.Element => {
     return (
       <div key={person.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ width: '100%', textAlign: 'center', marginBottom: '10px' }}>{person.name}</div>
+        <Person person={person} />
         {person.children && person.children.map(child => renderPerson(child))}
       </div>
     );
